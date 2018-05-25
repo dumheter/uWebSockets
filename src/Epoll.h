@@ -45,6 +45,7 @@ struct Loop {
     void *preCbData, *postCbData;
 
     Loop(bool defaultLoop) {
+        (void)defaultLoop
         epfd = epoll_create1(EPOLL_CLOEXEC);
         timepoint = std::chrono::system_clock::now();
     }
@@ -95,8 +96,8 @@ struct Timer {
         }
     }
 
-    void setData(void *data) {
-        this->data = data;
+    void setData(void *newData) {
+        this->data = newData;
     }
 
     void *getData() {
@@ -221,12 +222,12 @@ struct Async : Poll {
     Loop *loop;
     void *data;
 
-    Async(Loop *loop) : Poll(loop, ::eventfd(0, EFD_CLOEXEC)) {
-        this->loop = loop;
+    Async(Loop *newLoop) : Poll(newLoop, ::eventfd(0, EFD_CLOEXEC)) {
+        this->loop = newLoop;
     }
 
-    void start(void (*cb)(Async *)) {
-        this->cb = cb;
+    void start(void (*newCb)(Async *)) {
+        this->cb = newCb;
         Poll::setCb([](Poll *p, int, int) {
             uint64_t val;
             if (::read(((Async *) p)->state.fd, &val, 8) == 8) {
@@ -251,8 +252,8 @@ struct Async : Poll {
         });
     }
 
-    void setData(void *data) {
-        this->data = data;
+    void setData(void *newData) {
+        this->data = newData;
     }
 
     void *getData() {
