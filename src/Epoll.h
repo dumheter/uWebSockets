@@ -45,7 +45,7 @@ struct Loop {
     void *preCbData, *postCbData;
 
     Loop(bool defaultLoop) {
-        (void)defaultLoop
+        (void)defaultLoop; // suppress -Wunused-parameter
         epfd = epoll_create1(EPOLL_CLOEXEC);
         timepoint = std::chrono::system_clock::now();
     }

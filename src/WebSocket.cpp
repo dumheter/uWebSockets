@@ -46,6 +46,7 @@ void WebSocket<isServer>::send(const char *message, size_t length, OpCode opCode
 
     struct WebSocketTransformer {
         static size_t estimate(const char *data, size_t length) {
+            (void)data; // suppress -Wunused-parameter
             return length + HEADER_LENGTH;
         }
 
@@ -93,6 +94,7 @@ typename WebSocket<isServer>::PreparedMessage *WebSocket<isServer>::prepareMessa
 template <bool isServer>
 typename WebSocket<isServer>::PreparedMessage *WebSocket<isServer>::prepareMessageBatch(std::vector<std::string> &messages, std::vector<int> &excludedMessages, OpCode opCode, bool compressed, void (*callback)(WebSocket<isServer> *, void *, bool, void *))
 {
+    (void)excludedMessages; // suppress -Wunused-parameter
     // should be sent in!
     size_t batchLength = 0;
     for (size_t i = 0; i < messages.size(); i++) {
@@ -279,6 +281,8 @@ void WebSocket<isServer>::close(int code, const char *message, size_t length) {
     char closePayload[MAX_CLOSE_PAYLOAD + 2];
     int closePayloadLength = (int) WebSocketProtocol<isServer, WebSocket<isServer>>::formatClosePayload(closePayload, code, message, length);
     send(closePayload, closePayloadLength, OpCode::CLOSE, [](WebSocket<isServer> *p, void *data, bool cancelled, void *reserved) {
+        (void)data; // suppress -Wunused-parameter
+        (void)reserved; // suppress -Wunused-parameter
         if (!cancelled) {
             p->shutdown();
         }

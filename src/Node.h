@@ -16,11 +16,14 @@ class WIN32_EXPORT Node {
 protected:
     template <void C(Socket *p, bool error)>
     static void connect_cb(Poll *p, int status, int events) {
+        (void)events; // suppress -Wunused-parameter
         C((Socket *) p, status < 0);
     }
 
     template <void A(Socket *s)>
     static void accept_poll_cb(Poll *p, int status, int events) {
+        (void)status; // suppress -Wunused-parameter
+        (void)events; // suppress -Wunused-parameter
         ListenSocket *listenData = (ListenSocket *) p;
         accept_cb<A, false>(listenData);
     }
@@ -90,7 +93,7 @@ public:
     }
 
     template <uS::Socket *I(Socket *s), void C(Socket *p, bool error)>
-    Socket *connect(const char *hostname, int port, bool secure, NodeData *nodeData) {
+    Socket *connect(const char *hostname, int port, bool secure, NodeData *newNodeData) {
         Context *netContext = nodeData->netContext;
 
         addrinfo hints, *result;
@@ -117,7 +120,7 @@ public:
             SSL_set_tlsext_host_name(ssl, hostname);
         }
 
-        Socket initialSocket(nodeData, getLoop(), fd, ssl);
+        Socket initialSocket(newNodeData, getLoop(), fd, ssl);
         uS::Socket *socket = I(&initialSocket);
 
         socket->setCb(connect_cb<C>);
@@ -127,7 +130,8 @@ public:
 
     // todo: hostname, backlog
     template <void A(Socket *s)>
-    bool listen(const char *host, int port, uS::TLS::Context sslContext, int options, uS::NodeData *nodeData, void *user) {
+    bool listen(const char *host, int port, uS::TLS::Context sslContext, int options, uS::NodeData *newNodeData, void *user) {
+        (void)user; // suppress -Wunused-parameter
         addrinfo hints, *result;
         memset(&hints, 0, sizeof(addrinfo));
 
@@ -182,9 +186,9 @@ public:
             return true;
         }
 
-        ListenSocket *listenSocket = new ListenSocket(nodeData, loop, listenFd, nullptr);
+        ListenSocket *listenSocket = new ListenSocket(newNodeData, loop, listenFd, nullptr);
         listenSocket->sslContext = sslContext;
-        listenSocket->nodeData = nodeData;
+        listenSocket->nodeData = newNodeData;
 
         listenSocket->setCb(accept_poll_cb<A>);
         listenSocket->start(loop, listenSocket, UV_READABLE);

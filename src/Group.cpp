@@ -50,8 +50,8 @@ void Group<isServer>::addHttpSocket(HttpSocket<isServer> *httpSocket) {
         // start timer
         httpTimer = new uS::Timer(hub->getLoop());
         httpTimer->setData(this);
-        httpTimer->start([](uS::Timer *httpTimer) {
-            Group<isServer> *group = (Group<isServer> *) httpTimer->getData();
+        httpTimer->start([](uS::Timer *newHttpTimer) {
+            Group<isServer> *group = (Group<isServer> *) newHttpTimer->getData();
             group->forEachHttpSocket([](HttpSocket<isServer> *httpSocket) {
                 if (httpSocket->missedDeadline) {
                     httpSocket->terminate();

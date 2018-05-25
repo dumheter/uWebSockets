@@ -173,10 +173,12 @@ struct HttpResponse {
 
         struct NoopTransformer {
             static size_t estimate(const char *data, size_t length) {
+                (void)data; // suppress -Wunused-parameter
                 return length;
             }
 
             static size_t transform(const char *src, char *dst, size_t length, int transformData) {
+                (void)transformData; // suppress -Wunused-parameter
                 memcpy(dst, src, length);
                 return length;
             }
@@ -199,6 +201,7 @@ struct HttpResponse {
 
             // todo: this should get TransformData!
             static size_t estimate(const char *data, size_t length) {
+                (void)data; // suppress -Wunused-parameter
                 return length + 128;
             }
 
@@ -252,9 +255,9 @@ struct HttpResponse {
                 if (!head->hasEnded) {
                     break;
                 } else {
-                    HttpResponse *next = head->next;
+                    HttpResponse *tmpNext = head->next;
                     head->freeResponse(httpSocket);
-                    head = next;
+                    head = tmpNext;
                 }
             }
             updateHead:
@@ -267,8 +270,8 @@ struct HttpResponse {
         }
     }
 
-    void setUserData(void *userData) {
-        this->userData = userData;
+    void setUserData(void *newUserData) {
+        this->userData = newUserData;
     }
 
     void *getUserData() {

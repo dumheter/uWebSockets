@@ -163,6 +163,7 @@ protected:
 
     static int passwordCallback(char *buf, int size, int rwflag, void *u)
     {
+        (void)rwflag; // suppress -Wunused-parameter
         std::string *password = (std::string *) u;
         int length = std::min<int>(size, (int) password->length());
         memcpy(buf, password->data(), length);

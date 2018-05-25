@@ -86,9 +86,9 @@ protected:
         state.shuttingDown = shuttingDown;
     }
 
-    void transfer(NodeData *nodeData, void (*cb)(Poll *)) {
+    void transfer(NodeData *newNodeData, void (*cb)(Poll *)) {
         // userData is invalid from now on till onTransfer
-        setUserData(new TransferData({getFd(), ssl, getCb(), getPoll(), getUserData(), nodeData, cb}));
+        setUserData(new TransferData({getFd(), ssl, getCb(), getPoll(), getUserData(), newNodeData, cb}));
         stop(this->nodeData->loop);
         close(this->nodeData->loop, [](Poll *p) {
             Socket *s = (Socket *) p;
@@ -429,8 +429,8 @@ public:
         return user;
     }
 
-    void setUserData(void *user) {
-        this->user = user;
+    void setUserData(void *newUser) {
+        this->user = newUser;
     }
 
     struct Address {
