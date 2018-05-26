@@ -45,18 +45,18 @@ void WebSocket<isServer>::send(const char *message, size_t length, OpCode opCode
     } transformData = {opCode, compress && compressionStatus == WebSocket<isServer>::CompressionStatus::ENABLED && opCode < 3, this};
 
     struct WebSocketTransformer {
-        static size_t estimate(const char *data, size_t length) {
+        static size_t estimate(const char *data, size_t _length) {
             (void)data; // suppress -Wunused-parameter
-            return length + HEADER_LENGTH;
+            return _length + HEADER_LENGTH;
         }
 
-        static size_t transform(const char *src, char *dst, size_t length, TransformData transformData) {
-            if (transformData.compress) {
-                char *deflated = Group<isServer>::from(transformData.s)->hub->deflate((char *) src, length, (z_stream *) transformData.s->slidingDeflateWindow);
-                return WebSocketProtocol<isServer, WebSocket<isServer>>::formatMessage(dst, deflated, length, transformData.opCode, length, true);
+        static size_t transform(const char *src, char *dst, size_t _length, TransformData _transformData) {
+            if (_transformData.compress) {
+                char *deflated = Group<isServer>::from(_transformData.s)->hub->deflate((char *) src, _length, (z_stream *) _transformData.s->slidingDeflateWindow);
+                return WebSocketProtocol<isServer, WebSocket<isServer>>::formatMessage(dst, deflated, _length, _transformData.opCode, _length, true);
             }
 
-            return WebSocketProtocol<isServer, WebSocket<isServer>>::formatMessage(dst, src, length, transformData.opCode, length, false);
+            return WebSocketProtocol<isServer, WebSocket<isServer>>::formatMessage(dst, src, _length, _transformData.opCode, _length, false);
         }
     };
 
@@ -131,16 +131,16 @@ void WebSocket<isServer>::sendPrepared(typename WebSocket<isServer>::PreparedMes
     // todo: see if this can be made a transformer instead
     preparedMessage->references++;
     void (*callback)(void *webSocket, void *userData, bool cancelled, void *reserved) = [](void *webSocket, void *userData, bool cancelled, void *reserved) {
-        PreparedMessage *preparedMessage = (PreparedMessage *) userData;
-        bool lastReference = !--preparedMessage->references;
+        PreparedMessage *_preparedMessage = (PreparedMessage *) userData;
+        bool lastReference = !--_preparedMessage->references;
 
-        if (preparedMessage->callback) {
-            preparedMessage->callback(webSocket, reserved, cancelled, (void *) lastReference);
+        if (_preparedMessage->callback) {
+            _preparedMessage->callback(webSocket, reserved, cancelled, (void *) lastReference);
         }
 
         if (lastReference) {
-            delete [] preparedMessage->buffer;
-            delete preparedMessage;
+            delete [] _preparedMessage->buffer;
+            delete _preparedMessage;
         }
     };
 

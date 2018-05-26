@@ -172,15 +172,15 @@ struct HttpResponse {
                void *callbackData = nullptr) {
 
         struct NoopTransformer {
-            static size_t estimate(const char *data, size_t length) {
+            static size_t estimate(const char *data, size_t _length) {
                 (void)data; // suppress -Wunused-parameter
-                return length;
+                return _length;
             }
 
-            static size_t transform(const char *src, char *dst, size_t length, int transformData) {
+            static size_t transform(const char *src, char *dst, size_t _length, int transformData) {
                 (void)transformData; // suppress -Wunused-parameter
-                memcpy(dst, src, length);
-                return length;
+                memcpy(dst, src, _length);
+                return _length;
             }
         };
 
@@ -200,16 +200,16 @@ struct HttpResponse {
         struct HttpTransformer {
 
             // todo: this should get TransformData!
-            static size_t estimate(const char *data, size_t length) {
+            static size_t estimate(const char *data, size_t _length) {
                 (void)data; // suppress -Wunused-parameter
-                return length + 128;
+                return _length + 128;
             }
 
-            static size_t transform(const char *src, char *dst, size_t length, TransformData transformData) {
+            static size_t transform(const char *src, char *dst, size_t _length, TransformData _transformData) {
                 // todo: sprintf is extremely slow
-                int offset = transformData.hasHead ? 0 : std::sprintf(dst, "HTTP/1.1 200 OK\r\nContent-Length: %u\r\n\r\n", (unsigned int) length);
-                memcpy(dst + offset, src, length);
-                return length + offset;
+                int offset = _transformData.hasHead ? 0 : std::sprintf(dst, "HTTP/1.1 200 OK\r\nContent-Length: %u\r\n\r\n", (unsigned int) _length);
+                memcpy(dst + offset, src, _length);
+                return _length + offset;
             }
         };
 

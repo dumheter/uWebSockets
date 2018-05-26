@@ -123,8 +123,8 @@ protected:
     void startTimeout(int timeoutMs = 15000) {
         Timer *timer = new Timer(nodeData->loop);
         timer->setData(this);
-        timer->start([](Timer *timer) {
-            Socket *s = (Socket *) timer->getData();
+        timer->start([](Timer *_timer) {
+            Socket *s = (Socket *) _timer->getData();
             s->cancelTimeout();
             onTimeout(s);
         }, timeoutMs, 0);

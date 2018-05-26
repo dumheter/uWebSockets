@@ -52,11 +52,11 @@ void Group<isServer>::addHttpSocket(HttpSocket<isServer> *httpSocket) {
         httpTimer->setData(this);
         httpTimer->start([](uS::Timer *newHttpTimer) {
             Group<isServer> *group = (Group<isServer> *) newHttpTimer->getData();
-            group->forEachHttpSocket([](HttpSocket<isServer> *httpSocket) {
-                if (httpSocket->missedDeadline) {
-                    httpSocket->terminate();
-                } else if (!httpSocket->outstandingResponsesHead) {
-                    httpSocket->missedDeadline = true;
+            group->forEachHttpSocket([](HttpSocket<isServer> *_httpSocket) {
+                if (_httpSocket->missedDeadline) {
+                    _httpSocket->terminate();
+                } else if (!_httpSocket->outstandingResponsesHead) {
+                    _httpSocket->missedDeadline = true;
                 }
             });
         }, 1000, 1000);
